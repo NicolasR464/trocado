@@ -11,7 +11,10 @@ export async function PUT(
   const userId = params.id;
   const formData = await req.formData();
   const address = formData.get("address") as string;
-  console.log(address);
+  const pseudo = formData.get("pseudo") as string;
+  console.log({ address });
+  console.log({ pseudo });
+  console.log({ userId });
 
   // PUT PRISMA
   try {
@@ -21,6 +24,7 @@ export async function PUT(
       },
       data: {
         address,
+        pseudo,
       },
     });
     // console.log(updateUser);

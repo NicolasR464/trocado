@@ -22,6 +22,7 @@ export default async function lancement() {
   console.log("ON BOARDING PAGE 🔥");
 
   console.log(session);
+  console.log(session?.user?.userId);
 
   //   if (session?.user?.isNewUser === false) redirect("/");
   return (

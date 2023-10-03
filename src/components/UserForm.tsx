@@ -20,29 +20,47 @@ import { useForm } from "react-hook-form";
 // const form = useForm();
 
 const formSchema = z.object({
-  username: z.string().min(2, {
+  pseudo: z.string().min(2, {
+    message: "Un pseudo doit avoir au moins 3 caractères.",
+  }),
+  address: z.string().min(2, {
     message: "Un pseudo doit avoir au moins 3 caractères.",
   }),
 });
 
-export default function ProfileForm(userId: any) {
+export default function ProfileForm({ userId }: any) {
+  // console.log("in ProfileForm");
+
   // console.log(userId);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      pseudo: "",
+      address: "",
     },
   });
 
   // console.log(form.watch("address"));
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+
+    const { address, pseudo } = values;
+
+    const formData = new FormData();
+    formData.append("address", address);
+    formData.append("pseudo", pseudo);
+
+    const response = await fetch("/api/users/" + userId, {
+      method: "PUT",
+      body: formData,
+    });
+
+    const data = await response.json();
+    console.log(data);
   }
 
   function fetchAddresses(e: any) {
@@ -57,7 +75,7 @@ export default function ProfileForm(userId: any) {
       >
         <FormField
           control={form.control}
-          name="username"
+          name="pseudo"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Pseudo</FormLabel>
@@ -70,6 +88,7 @@ export default function ProfileForm(userId: any) {
           )}
         />
         <FormField
+          control={form.control}
           name="address"
           render={({ field }) => (
             <FormItem>
