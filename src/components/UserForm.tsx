@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, SyntheticEvent } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -32,21 +32,23 @@ const formSchema = z.object({
 
 export default function ProfileForm({ userId }: any) {
   const [addresses, setAddresses] = useState<any>([]);
-  const [selectedAddresses, setSelectedAddresses] = useState<object>({});
+  const [selectedAddress, setSelectedAddress] = useState<string>();
+  // const [addressInput, setAddressInput] = useState<string>("");
+  const [addressInfo, setAddressInfo] = useState<object>({});
 
   const additionalFieldsStyle: React.CSSProperties =
     addresses.length > 0
       ? {
           opacity: 1,
           zIndex: 0,
-          maxHeight: "500px",
-          transition: "opacity 0.5s, maxHeight 0.5s",
+          minHeight: "500px",
+          transition: "opacity 0.5s, minHeight 0.5s",
         }
       : {
           opacity: 0,
-          maxHeight: 0,
+          minHeight: 0,
           zIndex: -1,
-          transition: "opacity 0.5s, maxHeight 0.5s",
+          transition: "opacity 0.5s, minHeight 0.5s",
         };
 
   // 1. Define your form.
@@ -58,16 +60,30 @@ export default function ProfileForm({ userId }: any) {
     },
   });
 
-  // console.log(form.watch("address"));
-
   // 2. Define a submit handler.
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
 
-    const { address, pseudo } = values;
+    const { pseudo } = values;
+
+    // const addressObj = addresses.find(
+    //   (address: any) => address.properties.label === selectedAddress?.trim()
+    // );
+    // console.log(addressObj);
+
+    // // const {geometry.coordinates} = adressObj
+
+    // const newAddress = {
+    //   coordinates: addressObj.geometry.coordinates,
+    //   fullAddress: addressObj.properties.label,
+    //   city: addressObj.properties.city,
+    //   region: addressObj.properties.context,
+    //   postCode: addressObj.properties.postcode,
+    // };
 
     const formData = new FormData();
-    formData.append("address", address);
+    formData.append("address", JSON.stringify(addressInfo));
     formData.append("pseudo", pseudo);
 
     const response = await fetch("/api/users/" + userId, {
@@ -85,6 +101,28 @@ export default function ProfileForm({ userId }: any) {
 
     console.log(data);
     setAddresses(data);
+  }
+
+  function clickAddress(addressInput: HTMLParagraphElement) {
+    const addressValue = addressInput.textContent ?? "";
+    form.setValue("address", addressValue);
+
+    const addressObj = addresses.find(
+      (address: any) => address.properties.label === addressValue?.trim()
+    );
+    console.log(addressObj);
+
+    // const {geometry.coordinates} = adressObj
+
+    setAddressInfo({
+      coordinates: addressObj.geometry.coordinates,
+      fullAddress: addressObj.properties.label,
+      city: addressObj.properties.city,
+      region: addressObj.properties.context,
+      postCode: addressObj.properties.postcode,
+    });
+
+    setAddresses([]);
   }
 
   return (
@@ -130,12 +168,15 @@ export default function ProfileForm({ userId }: any) {
             )}
           />
           {addresses.length > 0 && (
-            <div className="border mt-0 -translate-y-3 rounded-b-md border-primary border-t-0 p-3">
+            <div className="border mt-0 -translate-y-2 rounded-b-md border-primary border-t-0 p-3">
               <span style={additionalFieldsStyle} className="p-2 font-medium">
                 Cliquez sur votre adresse ci-dessous👇
               </span>
               {addresses.map((address: any, index: number) => (
                 <p
+                  onClick={(e: SyntheticEvent<HTMLParagraphElement>) =>
+                    clickAddress(e.target as HTMLParagraphElement)
+                  }
                   className="p-2 hover:bg-secondary cursor-pointer rounded-md"
                   key={index}
                 >

@@ -8,8 +8,6 @@ export async function GET(
   console.log("ADDRESS API 📍");
   const address: any = req.nextUrl.searchParams.get("query");
 
-  console.log(address);
-
   const apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(
     address
   )}&type=housenumber&autocomplete=1`;

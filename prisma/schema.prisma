@@ -54,7 +54,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  address String?
+  address Address?
   role    Role     @default(USER)
 }
 
@@ -69,9 +69,10 @@ model VerificationToken {
 }
 
 
-// type Address {
-//   street String
-//   city   String
-//   state  String
-//   zip    String
-// }
+type Address {
+  coordinates Float[]
+  fullAddress   String
+  city String
+  region  String
+  postCode    String
+}
