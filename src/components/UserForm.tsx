@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -29,9 +31,23 @@ const formSchema = z.object({
 });
 
 export default function ProfileForm({ userId }: any) {
-  // console.log("in ProfileForm");
+  const [addresses, setAddresses] = useState<any>([]);
+  const [selectedAddresses, setSelectedAddresses] = useState<object>({});
 
-  // console.log(userId);
+  const additionalFieldsStyle: React.CSSProperties =
+    addresses.length > 0
+      ? {
+          opacity: 1,
+          zIndex: 0,
+          maxHeight: "500px",
+          transition: "opacity 0.5s, maxHeight 0.5s",
+        }
+      : {
+          opacity: 0,
+          maxHeight: 0,
+          zIndex: -1,
+          transition: "opacity 0.5s, maxHeight 0.5s",
+        };
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -63,15 +79,19 @@ export default function ProfileForm({ userId }: any) {
     console.log(data);
   }
 
-  function fetchAddresses(e: any) {
-    console.log(e);
+  async function fetchAddresses(input: any) {
+    const response = await fetch("/api/address?query=" + input);
+    const data = await response.json();
+
+    console.log(data);
+    setAddresses(data);
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-80  flex  flex-col max-w-screen"
+        className="space-y-8 w-96  flex  flex-col max-w-screen"
       >
         <FormField
           control={form.control}
@@ -87,27 +107,46 @@ export default function ProfileForm({ userId }: any) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Adresse postale</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="votre adresse postale"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    fetchAddresses(e.target.value);
-                  }}
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
+        <div>
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Adresse postale</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="votre adresse postale"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      fetchAddresses(e.target.value);
+                    }}
+                  />
+                </FormControl>
+                <FormDescription></FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {addresses.length > 0 && (
+            <div className="border mt-0 -translate-y-3 rounded-b-md border-primary border-t-0 p-3">
+              <span style={additionalFieldsStyle} className="p-2 font-medium">
+                Cliquez sur votre adresse ci-dessous👇
+              </span>
+              {addresses.map((address: any, index: number) => (
+                <p
+                  className="p-2 hover:bg-secondary cursor-pointer rounded-md"
+                  key={index}
+                >
+                  {" "}
+                  {address?.properties?.label}
+                </p>
+              ))}
+            </div>
           )}
-        />
+        </div>
+
         <Button className="self-center" type="submit">
           enregistrer
         </Button>

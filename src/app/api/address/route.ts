@@ -5,8 +5,10 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { query: string } }
 ) {
-  // console.log(req.nextUrl.searchParams.get("query"))
+  console.log("ADDRESS API 📍");
   const address: any = req.nextUrl.searchParams.get("query");
+
+  console.log(address);
 
   const apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(
     address
@@ -17,7 +19,7 @@ export async function GET(
     const data = await response.json();
 
     // Sending back the address data with CORS headers
-    return NextResponse.json(data);
+    return NextResponse.json(data.features);
   } catch (error) {
     return NextResponse.json({ message: "Address not found" });
   }
