@@ -18,6 +18,12 @@ module.exports = {
     extend: {
       colors: {
         primary: "#24059d",
+        secondary: "#ffdd6b",
+        accent: "#ff7acc",
+        neutral: "#3d4451",
+        base: "#ffffff",
+        success: "#30FF7C",
+        error: "#FF7C30",
       },
       keyframes: {
         "accordion-down": {
